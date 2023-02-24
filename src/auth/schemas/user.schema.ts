@@ -11,6 +11,9 @@ export class User extends Document {
   @Prop({ unique: [true, 'Duplicate email entered'] })
   email: string;
 
+  @Prop({ unique: [true, 'Duplicate phone entered'] })
+  phone: string;
+
   @Prop()
   password: string;
 }
