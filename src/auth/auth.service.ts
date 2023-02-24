@@ -29,7 +29,7 @@ export class AuthService {
   async signUp(signUpDto: SignUpDto): Promise<{ screen: string }> {
     const { name, email, phone, password } = signUpDto;
 
-    const userFound = await this.userModel.findOne({ _id: signUpDto.phone });
+    const userFound = await this.userModel.findOne({ id: signUpDto.phone });
 
     // ======== IF USER EXISTS WITH PHONE NUMBER SEND TO OTP SCREEN ========= //
     if (userFound) {
