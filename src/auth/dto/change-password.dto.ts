@@ -1,0 +1,71 @@
+import { BadRequestException } from '@nestjs/common';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+
+export class ChangePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(12)
+  @Transform(({ value }) => {
+    let nc = 0, // number count
+      uc = 0, // uppercase count
+      lc = 0, // lowercase count
+      sc = 0; // symbol count
+
+    value.split('').forEach((char: string) => {
+      const asciiVal = char.charCodeAt(0);
+
+      if (asciiVal >= 65 && asciiVal <= 90) {
+        uc += 1;
+      } else if (asciiVal >= 97 && asciiVal <= 122) {
+        lc += 1;
+      } else if (asciiVal >= 48 && asciiVal <= 57) {
+        nc += 1;
+      } else {
+        sc += 1;
+      }
+    });
+
+    if (uc === 0 || lc === 0 || nc === 0 || sc) {
+      throw new BadRequestException(
+        'Previous Password should be a combination of uppercase letters, lowercase letters, numbers, and symbols.',
+      );
+    }
+
+    return value;
+  })
+  readonly prevPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(12)
+  @Transform(({ value }) => {
+    let nc = 0, // number count
+      uc = 0, // uppercase count
+      lc = 0, // lowercase count
+      sc = 0; // symbol count
+
+    value.split('').forEach((char: string) => {
+      const asciiVal = char.charCodeAt(0);
+
+      if (asciiVal >= 65 && asciiVal <= 90) {
+        uc += 1;
+      } else if (asciiVal >= 97 && asciiVal <= 122) {
+        lc += 1;
+      } else if (asciiVal >= 48 && asciiVal <= 57) {
+        nc += 1;
+      } else {
+        sc += 1;
+      }
+    });
+
+    if (uc === 0 || lc === 0 || nc === 0 || sc) {
+      throw new BadRequestException(
+        'New Password should be a combination of uppercase letters, lowercase letters, numbers, and symbols.',
+      );
+    }
+
+    return value;
+  })
+  readonly newPassword: string;
+}

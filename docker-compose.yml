@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  app:
+    container_name: auth-container
+    image: auth-image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: npm run start:dev
+    ports:
+      - 3000:3000
+    environment:
+      - DB_URI=mongodb://mongo-auth-db:27017/nest-project
+      - JWT_SECRET=mehdihassanjony
+      - JWT_EXPIRES=1d
+    volumes:
+      - ./src:/app/src
+
+  mongo-auth-db:
+    image: mongo
+    restart: always

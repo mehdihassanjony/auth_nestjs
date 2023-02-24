@@ -1,31 +1,55 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PassportStrategy } from '@nestjs/passport';
 import { Model } from 'mongoose';
-import { Strategy, ExtractJwt } from 'passport-jwt';
 import { User } from './schemas/user.schema';
+import jwt from 'jsonwebtoken';
+import { use } from 'passport';
+import { UserTokenPayloadDto } from 'src/common/common-dto';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
-  ) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
-    });
-  }
+  ) {}
 
-  async validate(payload) {
-    const { id } = payload;
-
-    const user = await this.userModel.findById(id);
-
-    if (!user) {
-      throw new UnauthorizedException('Login first to access this endpoint.');
+  async validateToken(req): Promise<UserTokenPayloadDto> {
+    if (!req.headers.authorization) {
+      throw new UnauthorizedException('Token not found in header');
     }
 
-    return user;
+    const token = req.headers.authorization.replace('Bearer ', '');
+
+    try {
+      const tokenPayload: UserTokenPayloadDto = (await jwt.verify(
+        token,
+        process.env.JWT_SECRET,
+      )) as UserTokenPayloadDto;
+
+      return tokenPayload;
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
+  }
+
+  async sign(query) {
+    const user = await this.userModel.findOne(...query);
+
+    const token = await jwt.sign(
+      {
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          emailVerified: user.emailVerified,
+          phoneVerified: user.phoneVerified,
+        },
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '10d' },
+    );
+
+    return token;
   }
 }

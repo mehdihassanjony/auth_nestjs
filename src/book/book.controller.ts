@@ -16,7 +16,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './schemas/book.schema';
 
 import { Query as ExpressQuery } from 'express-serve-static-core';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthorizeGuard } from 'src/common/guard';
 
 @Controller('books')
 export class BookController {
@@ -28,7 +28,7 @@ export class BookController {
   }
 
   @Post()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthorizeGuard)
   async createBook(
     @Body()
     book: CreateBookDto,

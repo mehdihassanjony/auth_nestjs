@@ -5,19 +5,11 @@ export class ResponseDto {
   data: any;
 }
 
-
 export class UserTokenPayloadDto {
-  id: number;
-  userId: string;
-  fullName: string;
+  _id: string;
+  name: string;
   email: string;
   phone: string;
-  phoneVerified: boolean;
   emailVerified: boolean;
-  isEnabled: boolean;
-  isVerified: boolean;
-  isPasswordSet: boolean;
-  role: string;
-  profilePicture: string;
-  lastLogin: Date;
+  phoneVerified: boolean;
 }
