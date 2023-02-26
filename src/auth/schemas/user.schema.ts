@@ -15,10 +15,10 @@ export class User extends Document {
   phone: string;
 
   @Prop({ type: mongoose.Schema.Types.Boolean, default: false })
-  emailVerified: string;
+  emailVerified: boolean;
 
   @Prop({ type: mongoose.Schema.Types.Boolean, default: false })
-  phoneVerified: string;
+  phoneVerified: boolean;
 
   @Prop()
   password: string;

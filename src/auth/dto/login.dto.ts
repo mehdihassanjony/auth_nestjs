@@ -1,11 +1,19 @@
 import { BadRequestException } from '@nestjs/common';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
+import { PHONE_VALIDATE_REGEX } from 'src/common/constants';
 
 export class LoginDto {
+  @Matches(PHONE_VALIDATE_REGEX, { message: 'Invalid phone no provided.' })
   @IsNotEmpty()
-  @IsEmail({}, { message: 'Please enter correct email' })
-  readonly email: string;
+  @IsString()
+  phone: string;
 
   @IsNotEmpty()
   @IsString()

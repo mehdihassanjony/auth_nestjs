@@ -26,10 +26,12 @@ export class AuthService {
     private jwtStrategy: JwtStrategy,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<{ screen: string }> {
+  async signUp(
+    signUpDto: SignUpDto,
+  ): Promise<{ screen: string; user: object }> {
     const { name, email, phone, password } = signUpDto;
 
-    const userFound = await this.userModel.findOne({ id: signUpDto.phone });
+    const userFound = await this.userModel.findOne({ phone: signUpDto.phone });
 
     // ======== IF USER EXISTS WITH PHONE NUMBER SEND TO OTP SCREEN ========= //
     if (userFound) {
@@ -37,6 +39,7 @@ export class AuthService {
 
       return {
         screen: 'otp',
+        user: { _id: userFound._id, phone: userFound.phone },
       };
     }
 
@@ -53,11 +56,11 @@ export class AuthService {
 
     await this.sendMail(newUser.email, '1234');
 
-    return { screen: 'otp' };
+    return { screen: 'otp', user: { _id: newUser._id, phone: newUser.phone } };
   }
 
   async sendSms(phone: string, message: string) {
-    this.logger.log(`Successfully sent SMS to: ${phone}`);
+    this.logger.log(`Successfully sent SMS ${message} to: ${phone}`);
   }
 
   async matchOtp(phone: string, otp: string) {
@@ -70,9 +73,13 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string; screen: string }> {
-    const { email, password } = loginDto;
+    const { phone, password } = loginDto;
 
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ phone });
+
+    if (!user) {
+      throw new NotFoundException('User with that phone no not found');
+    }
 
     // ========= IF USER'S PHONE NOT VERIFIED THEN SEND TO OTP SCREEN =========== //
     if (!user.phoneVerified) {
@@ -123,8 +130,10 @@ export class AuthService {
     tokenPayload: UserTokenPayloadDto,
     body: ChangePasswordDto,
   ) {
+    console.log(tokenPayload);
     const user = await this.userModel.findOne({ _id: tokenPayload._id });
 
+    console.log(user);
     if (!(await bcrypt.compare(body.prevPassword, user.password))) {
       throw new BadRequestException('Previous password didn"t match');
     }
@@ -165,6 +174,10 @@ export class AuthService {
     if (!otpMatched) {
       throw new BadRequestException('Otp didn"t matched');
     }
+
+    user.phoneVerified = true;
+
+    user.save();
 
     return {
       token: await this.jwtStrategy.sign({ _id: user._id }),

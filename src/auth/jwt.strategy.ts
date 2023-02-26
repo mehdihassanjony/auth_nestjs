@@ -2,8 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
-import jwt from 'jsonwebtoken';
-import { use } from 'passport';
+import * as jwt from 'jsonwebtoken';
 import { UserTokenPayloadDto } from 'src/common/common-dto';
 
 @Injectable()
@@ -33,18 +32,16 @@ export class JwtStrategy {
   }
 
   async sign(query) {
-    const user = await this.userModel.findOne(...query);
+    const user = await this.userModel.findOne(query);
 
     const token = await jwt.sign(
       {
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          emailVerified: user.emailVerified,
-          phoneVerified: user.phoneVerified,
-        },
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
       },
       process.env.JWT_SECRET,
       { expiresIn: '10d' },

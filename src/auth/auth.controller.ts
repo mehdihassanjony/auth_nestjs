@@ -46,7 +46,7 @@ export class AuthController {
     return this.authService.forgotPassword(body);
   }
 
-  @Get('/verify-Otp')
+  @Get('/verify-otp')
   verifyOtp(@Body() body: VerifyOtpDto) {
     return this.authService.verifyOtp(body);
   }

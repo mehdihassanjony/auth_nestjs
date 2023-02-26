@@ -59,7 +59,7 @@ export class ChangePasswordDto {
       }
     });
 
-    if (uc === 0 || lc === 0 || nc === 0 || sc) {
+    if (uc === 0 || lc === 0 || nc === 0 || sc === 0) {
       throw new BadRequestException(
         'New Password should be a combination of uppercase letters, lowercase letters, numbers, and symbols.',
       );
